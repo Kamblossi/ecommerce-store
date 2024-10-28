@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -29,15 +30,50 @@ const Summary = () => {
     return total + Number(item.price);
   }, 0);
 
-  const onCheckout = async () => {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
-      {
-        productIds: items.map((item) => item.id),
-      }
-    );
+  const submitOrder = async (data: any): Promise<any> => {
+    const res = await fetch('/api/submitOrder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
 
-    window.location = response.data.url;
+    if (!res.ok) {
+      console.error(res);
+      throw new Error('Failed to submit order');
+    }
+
+    return await res.json();
+  };
+
+  const onCheckout = async () => {
+
+    let result = await submitOrder({
+      "id": uuidv4(),
+      "currency": "KES",
+      "amount": totalPrice,
+      "description": "payment for masterclass",
+      "callback_url": "https://some.com/home", // TODO: The URL in the front-end to redirect to after payment
+      "billing_address": {
+        "email_address": "johndoe@mail.com",
+        "phone_number": "",
+        "country_code": "KE",
+        "first_name": "John",
+        "middle_name": "",
+        "last_name": "Doe",
+        "line_1": "",
+        "line_2": "",
+        "city": "",
+        "state": "",
+        "postal_code": "",
+        "zip_code": ""
+      }
+    });
+
+    console.table(result);
+    window.location.href = result.redirect_url;
   };
 
   return (

@@ -20,7 +20,7 @@ export default async function handler(
       console.log('Authenticated:', JSON.stringify(authResponse, null, 2));
 
       const options = {
-        url: "https://some.com/home", // TODO: The POST URL on the backend to receive the payment notification from PesaPal to update the order status
+        url: "https://some.com/home", // TODO: The POST URL on the backend to receive the payment notification from PesaPal to update the order status. This needs to only be run once for the URL to be registered then you can comment it out
         ipn_notification_type: "POST"
       };
 
